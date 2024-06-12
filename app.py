@@ -264,11 +264,11 @@ with image_blocks as demo:
     gr.Markdown("使用您的影像和服裝影像進行虛擬試穿")
     with gr.Row():
         with gr.Column():
-            imgs = gr.ImageEditor(sources='upload', type="pil", label='Human. Mask with pen or use auto-masking', interactive=True)
+            imgs = gr.ImageEditor(sources='upload', type="pil", label='使用畫筆或自動遮罩替模特兒生成遮罩', interactive=True)
             with gr.Row():
                 is_checked = gr.Checkbox(label="Yes", info="自動生成遮罩 (僅需五秒)",value=True)
             with gr.Row():
-                is_checked_crop = gr.Checkbox(label="Yes", info="Use auto-crop & resizing",value=False)
+                is_checked_crop = gr.Checkbox(label="Yes", info="自動裁切",value=False)
 
             example = gr.Examples(
                 inputs=imgs,
@@ -283,7 +283,7 @@ with image_blocks as demo:
                     prompt = gr.Textbox(placeholder="Description of garment ex) Short Sleeve Round Neck T-shirts", show_label=False, elem_id="prompt")
             example = gr.Examples(
                 inputs=garm_img,
-                examples_per_page=8,
+                examples_per_page=10,
                 examples=garm_list_path)
         with gr.Column():
             # image_out = gr.Image(label="Output", elem_id="output-img", height=400)
