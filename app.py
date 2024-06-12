@@ -260,13 +260,13 @@ for ex_human in human_list_path:
 
 image_blocks = gr.Blocks().queue()
 with image_blocks as demo:
-    gr.Markdown("## IDM-VTON 👕👔👚")
-    gr.Markdown("Virtual Try-on with your image and garment image. Check out the [source codes](https://github.com/yisol/IDM-VTON) and the [model](https://huggingface.co/yisol/IDM-VTON)")
+    gr.Markdown("## 數位AI棚拍工作室 👕👔👚")
+    gr.Markdown("使用您的影像和服裝影像進行虛擬試穿")
     with gr.Row():
         with gr.Column():
             imgs = gr.ImageEditor(sources='upload', type="pil", label='Human. Mask with pen or use auto-masking', interactive=True)
             with gr.Row():
-                is_checked = gr.Checkbox(label="Yes", info="Use auto-generated mask (Takes 5 seconds)",value=True)
+                is_checked = gr.Checkbox(label="Yes", info="自動生成遮罩 (僅需五秒)",value=True)
             with gr.Row():
                 is_checked_crop = gr.Checkbox(label="Yes", info="Use auto-crop & resizing",value=False)
 
