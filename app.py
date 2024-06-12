@@ -175,8 +175,8 @@ def start_tryon(dict,garm_img,garment_des,is_checked,is_checked_crop,denoise_ste
         # Extract the images
         with torch.cuda.amp.autocast():
             with torch.no_grad():
-                prompt = "model is wearing " + garment_des
-                negative_prompt = "monochrome, lowres, bad anatomy, worst quality, low quality"
+                prompt = "((best quality, masterpiece, ultra-detailed, high quality photography, photo realistic)), the model is wearing " + garment_des
+                negative_prompt = "monochrome, lowres, bad anatomy, worst quality, normal quality, low quality, blurry, jpeg artifacts, sketch"
                 with torch.inference_mode():
                     (
                         prompt_embeds,
@@ -190,8 +190,8 @@ def start_tryon(dict,garm_img,garment_des,is_checked,is_checked_crop,denoise_ste
                         negative_prompt=negative_prompt,
                     )
                                     
-                    prompt = "a photo of " + garment_des
-                    negative_prompt = "monochrome, lowres, bad anatomy, worst quality, low quality"
+                    prompt = "((best quality, masterpiece, ultra-detailed, high quality photography, photo realistic)), a photo of " + garment_des
+                    negative_prompt = "monochrome, lowres, bad anatomy, worst quality, normal quality, low quality, blurry, jpeg artifacts, sketch"
                     if not isinstance(prompt, List):
                         prompt = [prompt] * 1
                     if not isinstance(negative_prompt, List):
@@ -264,26 +264,26 @@ with image_blocks as demo:
     gr.Markdown("使用您的影像和服裝影像進行虛擬試穿")
     with gr.Row():
         with gr.Column():
-            imgs = gr.ImageEditor(sources='upload', type="pil", label='使用畫筆或自動遮罩替模特兒生成遮罩', interactive=True)
+            imgs = gr.ImageEditor(sources='upload', type="pil", label='AI虛擬模特兒-請啟用全自動偵測模式或是使用畫筆在需要更衣的部位塗抹註記', interactive=True)
             with gr.Row():
-                is_checked = gr.Checkbox(label="Yes", info="自動生成遮罩 (僅需五秒)",value=True)
+                is_checked = gr.Checkbox(label="Yes", info="啟用全自動偵測更衣模式",value=True)
             with gr.Row():
-                is_checked_crop = gr.Checkbox(label="Yes", info="自動裁切",value=False)
+                is_checked_crop = gr.Checkbox(label="Yes", info="開啟自動剪裁並調整圖片大小模式",value=False)
 
             example = gr.Examples(
                 inputs=imgs,
-                examples_per_page=10,
+                examples_per_page=15,
                 examples=human_ex_list
             )
 
         with gr.Column():
-            garm_img = gr.Image(label="Garment", sources='upload', type="pil")
+            garm_img = gr.Image(label="成衣正鋪相片", sources='upload', type="pil")
             with gr.Row(elem_id="prompt-container"):
                 with gr.Row():
-                    prompt = gr.Textbox(placeholder="Description of garment ex) Short Sleeve Round Neck T-shirts", show_label=False, elem_id="prompt")
+                    prompt = gr.Textbox(label="(選填)輸入該衣物的英文描述", placeholder="Short Sleeve Round Neck T-shirts", show_label=True, elem_id="prompt")
             example = gr.Examples(
                 inputs=garm_img,
-                examples_per_page=10,
+                examples_per_page=16,
                 examples=garm_list_path)
         with gr.Column():
             # image_out = gr.Image(label="Output", elem_id="output-img", height=400)
@@ -296,11 +296,11 @@ with image_blocks as demo:
 
 
     with gr.Column():
-        try_button = gr.Button(value="Try-on")
-        with gr.Accordion(label="Advanced Settings", open=False):
+        try_button = gr.Button(value="更衣")
+        with gr.Accordion(label="進階設定", open=False):
             with gr.Row():
                 denoise_steps = gr.Number(label="Denoising Steps", minimum=20, maximum=40, value=30, step=1)
-                seed = gr.Number(label="Seed", minimum=-1, maximum=2147483647, step=1, value=42)
+                seed = gr.Number(label="Seed", minimum=-1, maximum=2147483647, step=1, value=-1)
 
 
 
