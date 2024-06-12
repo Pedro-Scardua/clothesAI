@@ -260,8 +260,20 @@ for ex_human in human_list_path:
 
 image_blocks = gr.Blocks().queue()
 with image_blocks as demo:
+
+##文字標題所在
+
     gr.Markdown("## 數位AI棚拍工作室 👕👔👚")
     gr.Markdown("使用您的影像和服裝影像進行虛擬試穿")
+##係數區塊
+    with gr.Column():
+        try_button = gr.Button(value="更衣")
+        with gr.Accordion(label="進階設定", open=False):
+            with gr.Row():
+                denoise_steps = gr.Number(label="Denoising Steps", minimum=20, maximum=40, value=30, step=1)
+                seed = gr.Number(label="Seed", minimum=-1, maximum=2147483647, step=1, value=-1)
+
+##更衣區塊
     with gr.Row():
         with gr.Column():
             imgs = gr.ImageEditor(sources='upload', type="pil", label='AI虛擬模特兒-請啟用全自動偵測模式或是使用畫筆在需要更衣的部位塗抹註記', interactive=True)
@@ -293,14 +305,6 @@ with image_blocks as demo:
             image_out = gr.Image(label="Output", elem_id="output-img",show_share_button=False)
 
 
-
-
-    with gr.Column():
-        try_button = gr.Button(value="更衣")
-        with gr.Accordion(label="進階設定", open=False):
-            with gr.Row():
-                denoise_steps = gr.Number(label="Denoising Steps", minimum=20, maximum=40, value=30, step=1)
-                seed = gr.Number(label="Seed", minimum=-1, maximum=2147483647, step=1, value=-1)
 
 
 
