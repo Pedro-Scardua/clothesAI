@@ -13,6 +13,7 @@ from transformers import (
 from diffusers import DDPMScheduler,AutoencoderKL
 from typing import List
 
+
 import torch
 import os
 from transformers import AutoTokenizer
@@ -123,16 +124,16 @@ pipe = TryonPipeline.from_pretrained(
 pipe.unet_encoder = UNet_Encoder
 
 @spaces.GPU
-def start_tryon(dict,garm_img,garment_des,is_checked,is_checked_crop,denoise_steps,seed):
+def start_tryon(dict,garm_img,garment_des,is_checked,is_checked_crop,denoise_steps,seed,category):
     device = "cuda"
-    
+
     openpose_model.preprocessor.body_estimation.model.to(device)
     pipe.to(device)
     pipe.unet_encoder.to(device)
 
     garm_img= garm_img.convert("RGB").resize((768,1024))
-    human_img_orig = dict["background"].convert("RGB")    
-    
+    human_img_orig = dict["background"].convert("RGB")
+
     if is_checked_crop:
         width, height = human_img_orig.size
         target_width = int(min(width, height * (3 / 4)))
@@ -151,7 +152,7 @@ def start_tryon(dict,garm_img,garment_des,is_checked,is_checked_crop,denoise_ste
     if is_checked:
         keypoints = openpose_model(human_img.resize((384,512)))
         model_parse, _ = parsing_model(human_img.resize((384,512)))
-        mask, mask_gray = get_mask_location('hd', "upper_body", model_parse, keypoints)
+        mask, mask_gray = get_mask_location('hd', category, model_parse, keypoints)
         mask = mask.resize((768,1024))
     else:
         mask = pil_to_binary_mask(dict['layers'][0].convert("RGB").resize((768, 1024)))
@@ -163,15 +164,15 @@ def start_tryon(dict,garm_img,garment_des,is_checked,is_checked_crop,denoise_ste
 
     human_img_arg = _apply_exif_orientation(human_img.resize((384,512)))
     human_img_arg = convert_PIL_to_numpy(human_img_arg, format="BGR")
-     
-    
+
+
 
     args = apply_net.create_argument_parser().parse_args(('show', './configs/densepose_rcnn_R_50_FPN_s1x.yaml', './ckpt/densepose/model_final_162be9.pkl', 'dp_segm', '-v', '--opts', 'MODEL.DEVICE', 'cuda'))
     # verbosity = getattr(args, "verbosity", None)
-    pose_img = args.func(args,human_img_arg)    
-    pose_img = pose_img[:,:,::-1]    
+    pose_img = args.func(args,human_img_arg)
+    pose_img = pose_img[:,:,::-1]
     pose_img = Image.fromarray(pose_img).resize((768,1024))
-    
+
     with torch.no_grad():
         # Extract the images
         with torch.cuda.amp.autocast():
@@ -190,7 +191,7 @@ def start_tryon(dict,garm_img,garment_des,is_checked,is_checked_crop,denoise_ste
                         do_classifier_free_guidance=True,
                         negative_prompt=negative_prompt,
                     )
-                                    
+
                     prompt = "((best quality, masterpiece, ultra-detailed, high quality photography, photo realistic)), a photo of " + garment_des
                     negative_prompt = "monochrome, lowres, bad anatomy, worst quality, normal quality, low quality, blurry, jpeg artifacts, sketch"
                     if not isinstance(prompt, List):
@@ -227,7 +228,7 @@ def start_tryon(dict,garm_img,garment_des,is_checked,is_checked_crop,denoise_ste
                         text_embeds_cloth=prompt_embeds_c.to(device,torch.float16),
                         cloth = garm_tensor.to(device,torch.float16),
                         mask_image=mask,
-                        image=human_img, 
+                        image=human_img,
                         height=1024,
                         width=768,
                         ip_adapter_image = garm_img.resize((768,1024)),
@@ -235,8 +236,8 @@ def start_tryon(dict,garm_img,garment_des,is_checked,is_checked_crop,denoise_ste
                     )[0]
 
     if is_checked_crop:
-        out_img = images[0].resize(crop_size)        
-        human_img_orig.paste(out_img, (int(left), int(top)))    
+        out_img = images[0].resize(crop_size)
+        human_img_orig.paste(out_img, (int(left), int(top)))
         return human_img_orig, mask_gray
     else:
         return images[0], mask_gray
@@ -281,6 +282,12 @@ with image_blocks as demo:
             with gr.Row():
                 is_checked = gr.Checkbox(label="Yes", info="啟用全自動偵測更衣模式",value=True)
             with gr.Row():
+                category = gr.Dropdown(
+                    choices=["upper_body", "lower_body", "dresses"],
+                    label="Category",
+                    value="upper_body"
+                )
+            with gr.Row():
                 is_checked_crop = gr.Checkbox(label="Yes", info="開啟自動剪裁並調整圖片大小模式",value=False)
 
             example = gr.Examples(
@@ -309,9 +316,9 @@ with image_blocks as demo:
 
 
 
-    try_button.click(fn=start_tryon, inputs=[imgs, garm_img, prompt, is_checked,is_checked_crop, denoise_steps, seed], outputs=[image_out,masked_img], api_name='tryon')
+    try_button.click(fn=start_tryon, inputs=[imgs, garm_img, prompt, is_checked,is_checked_crop, denoise_steps, seed, category], outputs=[image_out,masked_img], api_name='tryon')
 
-            
+
 
 
 image_blocks.launch()
