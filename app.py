@@ -265,12 +265,12 @@ with image_blocks as demo:
 
 ##文字標題所在
 
-    gr.Markdown("## 數位AI棚拍工作室 👕👔👚")
-    gr.Markdown("使用您的影像和服裝影像進行虛擬試穿")
+    gr.Markdown("## Change Clothes AI - AI Clothes Changer Online")
+    gr.Markdown("Go to [Change Clothes AI](https://changeclothesai.online/) for Free Try-On! 🤗 .")
 ##係數區塊
     with gr.Column():
-        try_button = gr.Button(value="更衣")
-        with gr.Accordion(label="進階設定", open=False):
+        try_button = gr.Button(value="Run Change Clothes AI")
+        with gr.Accordion(label="Advanced Settings", open=False):
             with gr.Row():
                 denoise_steps = gr.Number(label="Denoising Steps", minimum=20, maximum=40, value=30, step=1)
                 seed = gr.Number(label="Seed", minimum=-1, maximum=2147483647, step=1, value=-1)
@@ -278,9 +278,9 @@ with image_blocks as demo:
 ##更衣區塊
     with gr.Row():
         with gr.Column():
-            imgs = gr.ImageEditor(sources='upload', type="pil", label='AI虛擬模特兒-請啟用全自動偵測模式或是使用畫筆在需要更衣的部位塗抹註記', interactive=True)
+            imgs = gr.ImageEditor(sources='upload', type="pil", label='Human. Mask with pen or use auto-masking', interactive=True)
             with gr.Row():
-                is_checked = gr.Checkbox(label="Yes", info="啟用全自動偵測更衣模式",value=True)
+                is_checked = gr.Checkbox(label="Yes", info="Use auto-generated mask (Takes 5 seconds)",value=True)
             with gr.Row():
                 category = gr.Dropdown(
                     choices=["upper_body", "lower_body", "dresses"],
@@ -288,7 +288,7 @@ with image_blocks as demo:
                     value="upper_body"
                 )
             with gr.Row():
-                is_checked_crop = gr.Checkbox(label="Yes", info="開啟自動剪裁並調整圖片大小模式",value=False)
+                is_checked_crop = gr.Checkbox(label="Yes", info="Use auto-crop & resizing",value=False)
 
             example = gr.Examples(
                 inputs=imgs,
@@ -297,10 +297,10 @@ with image_blocks as demo:
             )
 
         with gr.Column():
-            garm_img = gr.Image(label="成衣正鋪相片", sources='upload', type="pil")
+            garm_img = gr.Image(label="Garment", sources='upload', type="pil")
             with gr.Row(elem_id="prompt-container"):
                 with gr.Row():
-                    prompt = gr.Textbox(label="(選填)輸入該衣物的英文描述", placeholder="Short Sleeve Round Neck T-shirts", show_label=True, elem_id="prompt")
+                    prompt = gr.Textbox(label="Description of garment", placeholder="Short Sleeve Round Neck T-shirts", show_label=True, elem_id="prompt")
             example = gr.Examples(
                 inputs=garm_img,
                 examples_per_page=16,
@@ -312,8 +312,13 @@ with image_blocks as demo:
             # image_out = gr.Image(label="Output", elem_id="output-img", height=400)
             image_out = gr.Image(label="Output", elem_id="output-img",show_share_button=False)
 
-
-
+    with gr.Row():
+        gr.Markdown("## Links")
+        gr.Markdown("###### [Image Describer](http://imagedescriber.online/)")
+        gr.Markdown("###### [Picture To Summary AI](https://picturetosummaryai.online/)")
+        gr.Markdown("###### [PS2 Filter AI](https://ps2filterai.online/)")
+        gr.Markdown("###### [Change Clothes AI](https://changeclothesai.online/)")
+        gr.Markdown("###### [Describe Image AI](https://describeimageai.online/)")
 
 
     try_button.click(fn=start_tryon, inputs=[imgs, garm_img, prompt, is_checked,is_checked_crop, denoise_steps, seed, category], outputs=[image_out,masked_img], api_name='tryon')
